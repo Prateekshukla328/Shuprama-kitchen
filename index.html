@@ -7,15 +7,30 @@
   
   <!-- Login Check Script -->
   <script>
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!user || (!user.phone && !user.email)) {
-        // Comment out for demo - uncomment for production
-        // window.location.href = "login.html";
+    // Check if user is logged in
+    function checkLogin() {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        if (!user || (!user.phone && !user.email)) {
+          showLoginModal();
+          return false;
+        }
+        return true;
+      } catch (e) {
+        showLoginModal();
+        return false;
       }
-    } catch (e) {
-      console.log("Login check skipped for demo");
     }
+
+    // Show login modal on page load if not logged in
+    window.addEventListener('load', function() {
+      if (!checkLogin()) {
+        // User not logged in, modal will show
+      } else {
+        // User is logged in, populate their data
+        populateUserData();
+      }
+    });
   </script>
 
   <!-- SEO META TAGS -->
@@ -846,6 +861,114 @@
       color: #feca57;
     }
 
+    /* Login Modal Styles */
+    .login-modal {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .login-content {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 5% auto;
+      padding: 40px;
+      border-radius: 25px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+      color: white;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-form {
+      margin-top: 30px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    .login-input:focus {
+      outline: none;
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #feca57, #ff6b6b);
+      color: white;
+      padding: 15px 40px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-tabs {
+      display: flex;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 5px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .login-tab.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: #feca57;
+    }
+
+    .user-info {
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 15px;
+      font-size: 14px;
+      z-index: 1000;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
 
   </style>
 </head>
@@ -890,6 +1013,9 @@
     </a>
     <a href="#payment">
       <span class="menu-icon">💳</span>Payment
+    </a>
+    <a href="javascript:void(0)" onclick="showAdminPanel()">
+      <span class="menu-icon">⚙️</span>Admin Panel
     </a>
     <a href="javascript:void(0)" onclick="logout()">
       <span class="menu-icon">🚪</span>Logout
@@ -979,9 +1105,10 @@
           <label for="mealPlan">🍽️ Select Meal Plan *</label>
           <select id="mealPlan" name="mealPlan" required>
             <option value="">Choose your plan</option>
-            <option value="breakfast">Breakfast - ₹40</option>
-            <option value="lunch">Lunch - ₹50</option>
-            <option value="dinner">Dinner - ₹50</option>
+            <option value="regular">Regular Thali - ₹80</option>
+            <option value="special">Special Thali - ₹120</option>
+            <option value="diet">Diet Thali - ₹100</option>
+            <option value="combo">Combo Meal - ₹150</option>
           </select>
         </div>
         
@@ -1172,6 +1299,137 @@
     </div>
   </div>
 
+  <!-- Login Modal -->
+  <div id="loginModal" class="login-modal">
+    <div class="login-content">
+      <h2 style="margin-bottom: 10px; font-size: 2.2em;">🍛 Welcome to Shuprama</h2>
+      <p style="opacity: 0.9; margin-bottom: 30px;">Please login to continue ordering delicious tiffins</p>
+      
+      <div class="login-tabs">
+        <button class="login-tab active" onclick="switchTab('login')">Login</button>
+        <button class="login-tab" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      
+      <!-- Login Form -->
+      <div id="loginForm" class="login-form">
+        <input type="tel" id="loginPhone" class="login-input" placeholder="📱 Enter your phone number" required>
+        <input type="password" id="loginPassword" class="login-input" placeholder="🔒 Enter your password" required>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+          <label style="display: flex; align-items: center; font-size: 0.9em; cursor: pointer;">
+            <input type="checkbox" id="showPassword" onchange="togglePassword()" style="margin-right: 8px;">
+            👁️ Show Password
+          </label>
+          <button type="button" onclick="forgotPassword()" style="background: none; border: none; color: #feca57; cursor: pointer; font-size: 0.9em; text-decoration: underline;">
+            🔑 Forgot Password?
+          </button>
+        </div>
+        
+        <button onclick="handleLogin()" class="login-btn">
+          <span id="loginBtnText">🚀 Login & Start Ordering</span>
+          <span id="loginBtnLoading" style="display: none;"><span class="loading"></span> Logging in...</span>
+        </button>
+        
+        <div style="margin-top: 20px;">
+          <button type="button" onclick="showAllUsers()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9em; margin-right: 10px;">
+            👥 View All Users
+          </button>
+          <button type="button" onclick="showUserData()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.9em;">
+            📊 My Data
+          </button>
+        </div>
+        
+        <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+          Don't have an account? Click "Sign Up" above
+        </p>
+      </div>
+      
+      <!-- Signup Form -->
+      <div id="signupForm" class="login-form" style="display: none;">
+        <input type="text" id="signupName" class="login-input" placeholder="👤 Full Name" required>
+        <input type="tel" id="signupPhone" class="login-input" placeholder="📱 Phone Number" required>
+        <input type="email" id="signupEmail" class="login-input" placeholder="📧 Email Address" required>
+        <input type="password" id="signupPassword" class="login-input" placeholder="🔒 Create Password" required>
+        <input type="text" id="signupAddress" class="login-input" placeholder="🏠 Your Address" required>
+        <button onclick="handleSignup()" class="login-btn">
+          <span id="signupBtnText">✨ Create Account & Order</span>
+          <span id="signupBtnLoading" style="display: none;"><span class="loading"></span> Creating account...</span>
+        </button>
+        <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+          Already have an account? Click "Login" above
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Info Display -->
+  <div id="userInfo" class="user-info" style="display: none;">
+    <div style="font-weight: 600; margin-bottom: 5px;">👋 Welcome!</div>
+    <div id="userDisplayName">User</div>
+  </div>
+
+  <!-- Admin Panel Modal -->
+  <div id="adminModal" style="display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);">
+    <div style="background: linear-gradient(135deg, #667eea, #764ba2); margin: 2% auto; padding: 30px; border-radius: 25px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; position: relative; color: white;">
+      <span onclick="closeAdminPanel()" style="color: white; float: right; font-size: 35px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+      <h2 style="text-align: center; margin-bottom: 30px; font-size: 2.2em;">⚙️ Admin Panel</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+        
+        <!-- User Management -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+          <h3 style="margin-bottom: 20px; color: #feca57;">👥 User Management</h3>
+          <button onclick="showAllUsersDetailed()" style="background: linear-gradient(135deg, #00b894, #00cec9); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            📊 View All Users
+          </button>
+          <button onclick="exportUserData()" style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            📥 Export User Data
+          </button>
+          <button onclick="clearAllUsers()" style="background: linear-gradient(135deg, #ff6b6b, #e84393); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            🗑️ Clear All Users
+          </button>
+        </div>
+
+        <!-- Order Management -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+          <h3 style="margin-bottom: 20px; color: #feca57;">📦 Order Management</h3>
+          <button onclick="showAllOrders()" style="background: linear-gradient(135deg, #00b894, #00cec9); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            📋 View All Orders
+          </button>
+          <button onclick="exportOrderData()" style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            📥 Export Orders
+          </button>
+          <button onclick="clearAllOrders()" style="background: linear-gradient(135deg, #ff6b6b, #e84393); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            🗑️ Clear All Orders
+          </button>
+        </div>
+
+        <!-- System Stats -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+          <h3 style="margin-bottom: 20px; color: #feca57;">📊 System Statistics</h3>
+          <div id="systemStats">
+            <p>Loading statistics...</p>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+          <h3 style="margin-bottom: 20px; color: #feca57;">⚡ Quick Actions</h3>
+          <button onclick="createTestUser()" style="background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            👤 Create Test User
+          </button>
+          <button onclick="resetSystem()" style="background: linear-gradient(135deg, #ff6b6b, #e84393); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            🔄 Reset System
+          </button>
+          <button onclick="backupData()" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; border: none; padding: 12px 20px; border-radius: 20px; cursor: pointer; margin: 5px; width: 100%; font-weight: 600;">
+            💾 Backup Data
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <p>&copy; 2024 All rights reserved by Shuprama India</p>
@@ -1199,12 +1457,200 @@
       }
     });
 
+    // Login/Logout System
+    function showLoginModal() {
+      document.getElementById('loginModal').style.display = 'block';
+    }
+
+    function hideLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function switchTab(tab) {
+      const loginTab = document.querySelector('.login-tab:first-child');
+      const signupTab = document.querySelector('.login-tab:last-child');
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+      } else {
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+        signupForm.style.display = 'block';
+        loginForm.style.display = 'none';
+      }
+    }
+
+    function handleLogin() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!phone || !password) {
+        alert('Please fill in all fields!');
+        return;
+      }
+
+      // Show loading
+      document.getElementById('loginBtnText').style.display = 'none';
+      document.getElementById('loginBtnLoading').style.display = 'inline';
+
+      // Simulate login process
+      setTimeout(() => {
+        // Get stored users
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const user = users.find(u => u.phone === phone && u.password === password);
+
+        if (user) {
+          // Login successful
+          localStorage.setItem('user', JSON.stringify({
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+            address: user.address,
+            loginTime: new Date().toISOString()
+          }));
+
+          hideLoginModal();
+          showUserInfo();
+          populateUserData();
+          
+          alert(`🎉 Welcome back, ${user.name}!\nYou're now logged in and ready to order!`);
+        } else {
+          alert('❌ Invalid phone number or password!\nPlease check your credentials or sign up if you\'re new.');
+        }
+
+        // Reset button
+        document.getElementById('loginBtnText').style.display = 'inline';
+        document.getElementById('loginBtnLoading').style.display = 'none';
+      }, 1500);
+    }
+
+    function handleSignup() {
+      const name = document.getElementById('signupName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const address = document.getElementById('signupAddress').value.trim();
+
+      if (!name || !phone || !email || !password || !address) {
+        alert('Please fill in all fields!');
+        return;
+      }
+
+      // Validate phone number
+      if (phone.length < 10) {
+        alert('Please enter a valid phone number!');
+        return;
+      }
+
+      // Validate email
+      if (!email.includes('@')) {
+        alert('Please enter a valid email address!');
+        return;
+      }
+
+      // Show loading
+      document.getElementById('signupBtnText').style.display = 'none';
+      document.getElementById('signupBtnLoading').style.display = 'inline';
+
+      // Simulate signup process
+      setTimeout(() => {
+        // Get existing users
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        
+        // Check if user already exists
+        if (users.find(u => u.phone === phone)) {
+          alert('❌ An account with this phone number already exists!\nPlease login instead.');
+          document.getElementById('signupBtnText').style.display = 'inline';
+          document.getElementById('signupBtnLoading').style.display = 'none';
+          return;
+        }
+
+        // Create new user
+        const newUser = {
+          name,
+          phone,
+          email,
+          password,
+          address,
+          signupDate: new Date().toISOString()
+        };
+
+        users.push(newUser);
+        localStorage.setItem('registeredUsers', JSON.stringify(users));
+
+        // Auto login the new user
+        localStorage.setItem('user', JSON.stringify({
+          name,
+          phone,
+          email,
+          address,
+          loginTime: new Date().toISOString()
+        }));
+
+        hideLoginModal();
+        showUserInfo();
+        populateUserData();
+        
+        alert(`🎉 Welcome to Shuprama, ${name}!\nYour account has been created successfully!\nYou're now logged in and ready to order!`);
+
+        // Reset form
+        document.getElementById('signupForm').reset();
+        document.getElementById('signupBtnText').style.display = 'inline';
+        document.getElementById('signupBtnLoading').style.display = 'none';
+      }, 2000);
+    }
+
+    function showUserInfo() {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.name) {
+        document.getElementById('userDisplayName').textContent = user.name;
+        document.getElementById('userInfo').style.display = 'block';
+      }
+    }
+
+    function populateUserData() {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user) {
+        // Populate form fields
+        if (user.phone) document.getElementById('phone').value = user.phone;
+        if (user.email) document.getElementById('email').value = user.email;
+        if (user.name) document.getElementById('customerName').value = user.name;
+        if (user.address) document.getElementById('address').value = user.address;
+        
+        // Populate cart form fields
+        if (user.name) document.getElementById('cartCustomerName').value = user.name;
+        if (user.phone) document.getElementById('cartPhone').value = user.phone;
+        if (user.address) document.getElementById('cartAddress').value = user.address;
+      }
+    }
+
     // Logout functionality
     function logout() {
       if (confirm("Are you sure you want to logout?")) {
         localStorage.removeItem("user");
+        document.getElementById('userInfo').style.display = 'none';
+        
+        // Clear form data
+        document.getElementById('customerName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('address').value = '';
+        document.getElementById('cartCustomerName').value = '';
+        document.getElementById('cartPhone').value = '';
+        document.getElementById('cartAddress').value = '';
+        
+        // Clear cart
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        
         alert("You have been logged out successfully!");
-        // window.location.href = "login.html"; // Uncomment for production
+        showLoginModal();
       }
     }
 
@@ -1354,16 +1800,12 @@
     // Set minimum date to today
     document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
 
-    // Auto-populate user data if available
+    // Initialize user session
     window.addEventListener('load', function() {
-      try {
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
-        if (user) {
-          if (user.phone) document.getElementById('phone').value = user.phone;
-          if (user.email) document.getElementById('email').value = user.email;
-        }
-      } catch (e) {
-        console.log("User data not available");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (user && user.name) {
+        showUserInfo();
+        populateUserData();
       }
     });
 
@@ -1755,6 +2197,385 @@
       });
     }
 
+    // Password and User Management Functions
+    function togglePassword() {
+      const passwordInput = document.getElementById('loginPassword');
+      const checkbox = document.getElementById('showPassword');
+      
+      if (checkbox.checked) {
+        passwordInput.type = 'text';
+      } else {
+        passwordInput.type = 'password';
+      }
+    }
+
+    function forgotPassword() {
+      const phone = prompt("📱 Enter your registered phone number:");
+      
+      if (!phone) return;
+      
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      const user = users.find(u => u.phone === phone);
+      
+      if (user) {
+        alert(`🔑 Password Recovery\n\nYour account details:\n👤 Name: ${user.name}\n📱 Phone: ${user.phone}\n🔒 Password: ${user.password}\n📧 Email: ${user.email}\n\n⚠️ Please save this information securely!`);
+      } else {
+        alert("❌ No account found with this phone number!\nPlease check the number or sign up for a new account.");
+      }
+    }
+
+    function showAllUsers() {
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      if (users.length === 0) {
+        alert("📝 No registered users found!\nBe the first to sign up!");
+        return;
+      }
+      
+      let usersList = "👥 All Registered Users:\n\n";
+      users.forEach((user, index) => {
+        usersList += `${index + 1}. 👤 ${user.name}\n`;
+        usersList += `   📱 Phone: ${user.phone}\n`;
+        usersList += `   🔒 Password: ${user.password}\n`;
+        usersList += `   📧 Email: ${user.email}\n`;
+        usersList += `   📍 Address: ${user.address}\n`;
+        usersList += `   📅 Joined: ${new Date(user.signupDate).toLocaleDateString()}\n\n`;
+      });
+      
+      usersList += "⚠️ This is demo data stored locally in your browser.";
+      
+      alert(usersList);
+    }
+
+    function showUserData() {
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      if (!currentUser.name) {
+        alert("❌ You are not logged in!\nPlease login first to view your data.");
+        return;
+      }
+      
+      const orderHistory = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      let userData = `📊 Your Account Data:\n\n`;
+      userData += `👤 Name: ${currentUser.name}\n`;
+      userData += `📱 Phone: ${currentUser.phone}\n`;
+      userData += `📧 Email: ${currentUser.email}\n`;
+      userData += `📍 Address: ${currentUser.address}\n`;
+      userData += `🕐 Last Login: ${new Date(currentUser.loginTime).toLocaleString()}\n\n`;
+      
+      userData += `📦 Total Orders: ${orderHistory.length}\n`;
+      userData += `🛒 Items in Cart: ${cartData.length}\n\n`;
+      
+      if (orderHistory.length > 0) {
+        userData += `🍽️ Recent Orders:\n`;
+        orderHistory.slice(0, 3).forEach((order, index) => {
+          userData += `${index + 1}. ${order.mealPlan} - ₹${order.totalAmount || 'N/A'} (${new Date(order.timestamp).toLocaleDateString()})\n`;
+        });
+      }
+      
+      userData += `\n💾 All data is stored locally in your browser.`;
+      
+      alert(userData);
+    }
+
+    // Enhanced login with better error handling
+    function handleLoginEnhanced() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (!phone || !password) {
+        alert('Please fill in all fields!');
+        return;
+      }
+
+      // Show loading
+      document.getElementById('loginBtnText').style.display = 'none';
+      document.getElementById('loginBtnLoading').style.display = 'inline';
+
+      // Simulate login process
+      setTimeout(() => {
+        // Get stored users
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const user = users.find(u => u.phone === phone && u.password === password);
+
+        if (user) {
+          // Login successful
+          localStorage.setItem('user', JSON.stringify({
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+            address: user.address,
+            loginTime: new Date().toISOString()
+          }));
+
+          hideLoginModal();
+          showUserInfo();
+          populateUserData();
+          
+          alert(`🎉 Welcome back, ${user.name}!\n\n✅ Login successful!\n🍛 You can now place orders\n📱 Your data has been loaded automatically\n\n🕐 Login Time: ${new Date().toLocaleString()}`);
+        } else {
+          // Check if phone exists but wrong password
+          const phoneExists = users.find(u => u.phone === phone);
+          if (phoneExists) {
+            alert(`❌ Incorrect password for ${phone}!\n\n💡 Tip: Click "Forgot Password?" to recover your password\n👁️ Or use "Show Password" checkbox to verify your input`);
+          } else {
+            alert(`❌ No account found with phone number: ${phone}\n\n📝 Please check the number or sign up for a new account\n👥 Click "View All Users" to see registered numbers`);
+          }
+        }
+
+        // Reset button
+        document.getElementById('loginBtnText').style.display = 'inline';
+        document.getElementById('loginBtnLoading').style.display = 'none';
+      }, 1500);
+    }
+
+    // Admin Panel Functions
+    function showAdminPanel() {
+      document.getElementById('adminModal').style.display = 'block';
+      updateSystemStats();
+    }
+
+    function closeAdminPanel() {
+      document.getElementById('adminModal').style.display = 'none';
+    }
+
+    function updateSystemStats() {
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      const orders = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      const statsHTML = `
+        <div style="line-height: 2;">
+          <p><strong>👥 Total Users:</strong> ${users.length}</p>
+          <p><strong>📦 Total Orders:</strong> ${orders.length}</p>
+          <p><strong>👤 Current User:</strong> ${currentUser.name || 'Not logged in'}</p>
+          <p><strong>💾 Data Size:</strong> ${Math.round(JSON.stringify(localStorage).length / 1024)} KB</p>
+          <p><strong>🕐 Last Updated:</strong> ${new Date().toLocaleString()}</p>
+        </div>
+      `;
+      
+      document.getElementById('systemStats').innerHTML = statsHTML;
+    }
+
+    function showAllUsersDetailed() {
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      if (users.length === 0) {
+        alert("📝 No registered users found!");
+        return;
+      }
+      
+      let userDetails = "👥 DETAILED USER DATABASE:\n\n";
+      users.forEach((user, index) => {
+        userDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        userDetails += `USER #${index + 1}\n`;
+        userDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        userDetails += `👤 Full Name: ${user.name}\n`;
+        userDetails += `📱 Phone: ${user.phone}\n`;
+        userDetails += `🔒 Password: ${user.password}\n`;
+        userDetails += `📧 Email: ${user.email}\n`;
+        userDetails += `📍 Address: ${user.address}\n`;
+        userDetails += `📅 Signup Date: ${new Date(user.signupDate).toLocaleString()}\n`;
+        userDetails += `🕐 Account Age: ${Math.floor((Date.now() - new Date(user.signupDate)) / (1000 * 60 * 60 * 24))} days\n\n`;
+      });
+      
+      userDetails += `📊 SUMMARY:\n`;
+      userDetails += `• Total Users: ${users.length}\n`;
+      userDetails += `• Database Size: ${Math.round(JSON.stringify(users).length / 1024)} KB\n`;
+      userDetails += `• Generated: ${new Date().toLocaleString()}\n\n`;
+      userDetails += `⚠️ This is demo data stored locally in browser.`;
+      
+      // Create a new window to display the data
+      const newWindow = window.open('', '_blank', 'width=800,height=600');
+      newWindow.document.write(`
+        <html>
+          <head><title>User Database - Shuprama Admin</title></head>
+          <body style="font-family: monospace; padding: 20px; background: #f0f0f0;">
+            <h2>🔐 Shuprama User Database</h2>
+            <pre style="background: white; padding: 20px; border-radius: 10px; overflow: auto;">${userDetails}</pre>
+            <button onclick="window.close()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">Close Window</button>
+          </body>
+        </html>
+      `);
+    }
+
+    function exportUserData() {
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      if (users.length === 0) {
+        alert("📝 No user data to export!");
+        return;
+      }
+      
+      const csvContent = "Name,Phone,Password,Email,Address,Signup Date\n" + 
+        users.map(user => 
+          `"${user.name}","${user.phone}","${user.password}","${user.email}","${user.address}","${new Date(user.signupDate).toLocaleString()}"`
+        ).join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shuprama-users-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      alert(`📥 User data exported successfully!\n${users.length} users exported to CSV file.`);
+    }
+
+    function showAllOrders() {
+      const orders = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      
+      if (orders.length === 0) {
+        alert("📦 No orders found!");
+        return;
+      }
+      
+      let orderDetails = "📦 ALL ORDERS DATABASE:\n\n";
+      orders.forEach((order, index) => {
+        orderDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        orderDetails += `ORDER #${index + 1}\n`;
+        orderDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        orderDetails += `🆔 Order ID: ${order.orderId}\n`;
+        orderDetails += `👤 Customer: ${order.customerName}\n`;
+        orderDetails += `📱 Phone: ${order.phone}\n`;
+        orderDetails += `📧 Email: ${order.email || 'Not provided'}\n`;
+        orderDetails += `📍 Address: ${order.address}\n`;
+        orderDetails += `🍽️ Meal Plan: ${order.mealPlan}\n`;
+        orderDetails += `💰 Amount: ₹${order.totalAmount || 'N/A'}\n`;
+        orderDetails += `💳 Payment: ${order.paymentMethod || 'Not specified'}\n`;
+        orderDetails += `📅 Order Date: ${order.timestamp}\n`;
+        orderDetails += `📝 Special Requests: ${order.specialRequests || 'None'}\n`;
+        orderDetails += `📊 Status: ${order.status}\n\n`;
+      });
+      
+      orderDetails += `📊 ORDER SUMMARY:\n`;
+      orderDetails += `• Total Orders: ${orders.length}\n`;
+      orderDetails += `• Database Size: ${Math.round(JSON.stringify(orders).length / 1024)} KB\n`;
+      orderDetails += `• Generated: ${new Date().toLocaleString()}\n\n`;
+      orderDetails += `⚠️ This is demo data stored locally in browser.`;
+      
+      // Create a new window to display the data
+      const newWindow = window.open('', '_blank', 'width=900,height=700');
+      newWindow.document.write(`
+        <html>
+          <head><title>Orders Database - Shuprama Admin</title></head>
+          <body style="font-family: monospace; padding: 20px; background: #f0f0f0;">
+            <h2>📦 Shuprama Orders Database</h2>
+            <pre style="background: white; padding: 20px; border-radius: 10px; overflow: auto; max-height: 500px;">${orderDetails}</pre>
+            <button onclick="window.close()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">Close Window</button>
+          </body>
+        </html>
+      `);
+    }
+
+    function exportOrderData() {
+      const orders = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+      
+      if (orders.length === 0) {
+        alert("📦 No order data to export!");
+        return;
+      }
+      
+      const csvContent = "Order ID,Customer Name,Phone,Email,Address,Meal Plan,Amount,Payment Method,Order Date,Status\n" + 
+        orders.map(order => 
+          `"${order.orderId}","${order.customerName}","${order.phone}","${order.email || 'Not provided'}","${order.address}","${order.mealPlan}","${order.totalAmount || 'N/A'}","${order.paymentMethod || 'Not specified'}","${order.timestamp}","${order.status}"`
+        ).join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shuprama-orders-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      alert(`📥 Order data exported successfully!\n${orders.length} orders exported to CSV file.`);
+    }
+
+    function createTestUser() {
+      const testUser = {
+        name: "Test User " + Math.floor(Math.random() * 1000),
+        phone: "9876543" + Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
+        email: "test" + Math.floor(Math.random() * 1000) + "@example.com",
+        password: "test123",
+        address: "Test Address, Bareilly",
+        signupDate: new Date().toISOString()
+      };
+      
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      users.push(testUser);
+      localStorage.setItem('registeredUsers', JSON.stringify(users));
+      
+      updateSystemStats();
+      
+      alert(`👤 Test user created successfully!\n\n📱 Phone: ${testUser.phone}\n🔒 Password: ${testUser.password}\n👤 Name: ${testUser.name}\n\nYou can now login with these credentials!`);
+    }
+
+    function clearAllUsers() {
+      if (confirm("⚠️ WARNING!\n\nThis will permanently delete ALL user accounts!\n\nAre you sure you want to continue?")) {
+        if (confirm("🚨 FINAL CONFIRMATION!\n\nThis action cannot be undone!\nAll user data will be lost forever!\n\nClick OK to proceed with deletion.")) {
+          localStorage.removeItem('registeredUsers');
+          localStorage.removeItem('user'); // Also logout current user
+          
+          updateSystemStats();
+          
+          alert("🗑️ All user data has been cleared!\n\nThe system has been reset to initial state.\nYou will need to sign up again to use the service.");
+          
+          // Force logout and show login modal
+          document.getElementById('userInfo').style.display = 'none';
+          showLoginModal();
+          closeAdminPanel();
+        }
+      }
+    }
+
+    function clearAllOrders() {
+      if (confirm("⚠️ WARNING!\n\nThis will permanently delete ALL order history!\n\nAre you sure you want to continue?")) {
+        localStorage.removeItem('orderHistory');
+        updateSystemStats();
+        alert("🗑️ All order history has been cleared!");
+      }
+    }
+
+    function resetSystem() {
+      if (confirm("🚨 SYSTEM RESET WARNING!\n\nThis will delete ALL data:\n• All user accounts\n• All order history\n• All cart data\n• All settings\n\nThis action cannot be undone!\n\nAre you sure?")) {
+        if (confirm("🔥 FINAL WARNING!\n\nYou are about to completely reset the system!\n\nClick OK to proceed with FULL SYSTEM RESET.")) {
+          // Clear all localStorage data
+          localStorage.clear();
+          
+          alert("🔄 System has been completely reset!\n\nAll data has been cleared.\nThe page will reload to initial state.");
+          
+          // Reload the page
+          window.location.reload();
+        }
+      }
+    }
+
+    function backupData() {
+      const allData = {
+        users: JSON.parse(localStorage.getItem('registeredUsers') || '[]'),
+        orders: JSON.parse(localStorage.getItem('orderHistory') || '[]'),
+        currentUser: JSON.parse(localStorage.getItem('user') || '{}'),
+        cart: JSON.parse(localStorage.getItem('cart') || '[]'),
+        backupDate: new Date().toISOString(),
+        version: "1.0"
+      };
+      
+      const dataStr = JSON.stringify(allData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `shuprama-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      alert(`💾 System backup created successfully!\n\nBackup includes:\n• ${allData.users.length} users\n• ${allData.orders.length} orders\n• Current session data\n• Cart data\n\nFile saved as JSON format.`);
+    }
+
     // Initialize cart and meals
     updateCartCount();
     loadMeals();
@@ -1862,5 +2683,5 @@
 
 
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c1056253aa7ec',t:'MTc1Mzk1NDA4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c220a8015a824',t:'MTc1Mzk1NDgxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
