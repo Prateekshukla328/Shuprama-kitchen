@@ -60,26 +60,77 @@
       min-height: 100vh;
     }
 
-    /* Hamburger Menu */
+    /* Creative Hamburger Menu */
     #hamburger {
       position: fixed;
       top: 20px;
       left: 20px;
-      font-size: 28px;
+      width: 60px;
+      height: 60px;
       cursor: pointer;
       z-index: 1001;
-      color: white;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 12px 15px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb);
+      background-size: 200% 200%;
+      animation: gradientMove 3s ease infinite;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     #hamburger:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.05);
+      transform: scale(1.15) rotate(180deg);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .hamburger-icon {
+      position: relative;
+      width: 24px;
+      height: 18px;
+    }
+
+    .hamburger-line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger-line:nth-child(1) {
+      top: 0;
+    }
+
+    .hamburger-line:nth-child(2) {
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .hamburger-line:nth-child(3) {
+      bottom: 0;
+    }
+
+    #hamburger:hover .hamburger-line:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    #hamburger:hover .hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    #hamburger:hover .hamburger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
     }
 
     #sidebar {
@@ -89,28 +140,73 @@
       z-index: 1000;
       top: 0;
       left: 0;
-      background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #ff6b6b 100%);
       overflow-x: hidden;
-      transition: 0.4s ease;
-      padding-top: 80px;
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      padding-top: 100px;
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(20px);
+    }
+
+    #sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
     }
 
     #sidebar a, #sidebar .contact-box {
-      padding: 16px 30px;
+      padding: 20px 30px;
       text-decoration: none;
       font-size: 18px;
-      color: #333;
+      color: white;
       display: block;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
       border-left: 4px solid transparent;
+      position: relative;
+      z-index: 2;
+      margin: 5px 15px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      font-weight: 500;
+    }
+
+    #sidebar a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+      border-radius: 15px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: -1;
+    }
+
+    #sidebar a:hover::before {
+      opacity: 1;
     }
 
     #sidebar a:hover {
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      color: white;
-      border-left: 4px solid #fff;
-      transform: translateX(5px);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+      color: #feca57;
+      border-left: 4px solid #feca57;
+      transform: translateX(10px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-icon {
+      display: inline-block;
+      width: 24px;
+      text-align: center;
+      margin-right: 15px;
+      font-size: 20px;
     }
 
     #sidebar .contact-box {
@@ -750,129 +846,19 @@
       color: #feca57;
     }
 
-    /* Cafe & Kitchen Styles */
-    .service-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      border-radius: 25px;
-      font-size: 1.1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
 
-    .service-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-    }
-
-    .service-btn.active-service {
-      background: linear-gradient(135deg, #feca57, #ff6b6b);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-    }
-
-    .service-menu {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .menu-category {
-      margin: 30px 0;
-    }
-
-    .category-title {
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-      font-size: 1.3em;
-      text-align: center;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .menu-items-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .menu-item-card {
-      background: linear-gradient(135deg, #ffffff, #f8f9fa);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .menu-item-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .item-header h5 {
-      margin: 0;
-      font-size: 1.2em;
-      color: #333;
-      font-weight: 600;
-    }
-
-    .item-price {
-      background: linear-gradient(135deg, #feca57, #ff6b6b);
-      color: white;
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-
-    .item-description {
-      color: #666;
-      margin: 10px 0 15px 0;
-      font-size: 0.95em;
-      line-height: 1.5;
-    }
-
-    .add-item-btn {
-      background: linear-gradient(135deg, #00b894, #00cec9);
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: 600;
-      width: 100%;
-      transition: all 0.3s ease;
-      font-size: 1em;
-    }
-
-    .add-item-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-      background: linear-gradient(135deg, #00cec9, #00b894);
-    }
   </style>
 </head>
 <body>
 
-  <!-- Hamburger Menu -->
-  <div id="hamburger" onclick="toggleSidebar()">☰</div>
+  <!-- Creative Hamburger Menu -->
+  <div id="hamburger" onclick="toggleSidebar()">
+    <div class="hamburger-icon">
+      <div class="hamburger-line"></div>
+      <div class="hamburger-line"></div>
+      <div class="hamburger-line"></div>
+    </div>
+  </div>
   
   <!-- Cart Icon -->
   <div class="cart-icon" onclick="openCart()">
@@ -881,20 +867,57 @@
   </div>
   
   <div id="sidebar">
-    <a href="https://drive.google.com/file/d/10zu3FGCTuWtg_A8HD1n5n9t8LYKBLgaB/view?usp=drivesdk" target="_blank">📄 View Menu</a>
-    <a href="javascript:void(0)" onclick="showOrderHistory()">📦 Order History</a>
-    <a href="#home">🏠 Home</a>
-    <a href="#menu">🍽️ Today's Menu</a>
-    <a href="#cafe-kitchen">☕ Cafe & Kitchen</a>
-    <a href="#order">📝 Place Order</a>
-    <a href="#contact">📞 Contact Us</a>
-    <a href="javascript:void(0)" onclick="logout()">🚪 Logout</a>
+    <a href="#home">
+      <span class="menu-icon">🏠</span>Home
+    </a>
+    <a href="#menu">
+      <span class="menu-icon">🍽️</span>Today's Menu
+    </a>
+    <a href="#order">
+      <span class="menu-icon">📝</span>Place Order
+    </a>
+    <a href="https://drive.google.com/file/d/10zu3FGCTuWtg_A8HD1n5n9t8LYKBLgaB/view?usp=drivesdk" target="_blank">
+      <span class="menu-icon">📄</span>Full Menu
+    </a>
+    <a href="javascript:void(0)" onclick="showOrderHistory()">
+      <span class="menu-icon">📦</span>Order History
+    </a>
+    <a href="https://wa.me/916387158928" target="_blank">
+      <span class="menu-icon">💬</span>WhatsApp Order
+    </a>
+    <a href="#contact">
+      <span class="menu-icon">📞</span>Contact Us
+    </a>
+    <a href="#payment">
+      <span class="menu-icon">💳</span>Payment
+    </a>
+    <a href="javascript:void(0)" onclick="logout()">
+      <span class="menu-icon">🚪</span>Logout
+    </a>
     
-    <div class="contact-box">
-      <strong>📍 Address:</strong><br>
-      Gully No.-7, Nakatiya,Bareilly,UP,243123<br><br>
-      <strong>📞 Phone:</strong><br>
-      9149153015, 9198200758
+    <div class="contact-box" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); border-radius: 20px; margin: 20px 15px; padding: 25px; color: white; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 2em; margin-bottom: 10px;">🍛</div>
+        <strong style="font-size: 1.2em; color: #feca57;">Quick Contact</strong>
+      </div>
+      <div style="margin: 15px 0;">
+        <strong>📍 Address:</strong><br>
+        <span style="opacity: 0.9;">Gully No.-7, Nakatiya<br>Bareilly, UP - 243123</span>
+      </div>
+      <div style="margin: 15px 0;">
+        <strong>📞 Phone:</strong><br>
+        <span style="opacity: 0.9;">9149153015<br>9198200758</span>
+      </div>
+      <div style="margin: 15px 0;">
+        <strong>💬 WhatsApp:</strong><br>
+        <span style="opacity: 0.9;">6387158928</span>
+      </div>
+      <div style="text-align: center; margin-top: 20px;">
+        <div style="background: rgba(254, 202, 87, 0.2); padding: 10px; border-radius: 10px; font-size: 0.9em;">
+          <strong>⏰ Available:</strong><br>
+          9:00 AM - 8:00 PM
+        </div>
+      </div>
     </div>
   </div>
 
@@ -956,10 +979,9 @@
           <label for="mealPlan">🍽️ Select Meal Plan *</label>
           <select id="mealPlan" name="mealPlan" required>
             <option value="">Choose your plan</option>
-            <option value="regular">Regular Thali - ₹80</option>
-            <option value="special">Special Thali - ₹120</option>
-            <option value="diet">Diet Thali - ₹100</option>
-            <option value="combo">Combo Meal - ₹150</option>
+            <option value="breakfast">Breakfast - ₹40</option>
+            <option value="lunch">Lunch - ₹50</option>
+            <option value="dinner">Dinner - ₹50</option>
           </select>
         </div>
         
@@ -1075,261 +1097,7 @@
     </p>
   </div>
 
-  <!-- Cafe & Kitchen Section -->
-  <div class="section" id="cafe-kitchen">
-    <h2>☕ Cafe & Kitchen Services</h2>
-    
-    <!-- Service Type Selector -->
-    <div style="display: flex; justify-content: center; margin-bottom: 30px; gap: 20px; flex-wrap: wrap;">
-      <button onclick="showService('cafe')" id="cafeBtn" class="service-btn active-service">
-        ☕ CAFE
-      </button>
-      <button onclick="showService('kitchen')" id="kitchenBtn" class="service-btn">
-        🍳 KITCHEN
-      </button>
-    </div>
-    
-    <!-- Cafe Menu -->
-    <div id="cafeMenu" class="service-menu">
-      <h3 style="text-align: center; color: #667eea; margin-bottom: 25px; font-size: 1.8em;">☕ Cafe Menu</h3>
-      
-      <!-- Hot Beverages -->
-      <div class="menu-category">
-        <h4 class="category-title">🔥 Hot Beverages</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>☕ Classic Tea</h5>
-              <span class="item-price">₹15</span>
-            </div>
-            <p class="item-description">Fresh brewed Indian chai with spices</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('classic-tea', 'Classic Tea', 15, 'cafe', '☕')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>☕ Coffee</h5>
-              <span class="item-price">₹25</span>
-            </div>
-            <p class="item-description">Rich black coffee or with milk</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('coffee', 'Coffee', 25, 'cafe', '☕')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍫 Hot Chocolate</h5>
-              <span class="item-price">₹35</span>
-            </div>
-            <p class="item-description">Creamy hot chocolate with marshmallows</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('hot-chocolate', 'Hot Chocolate', 35, 'cafe', '🍫')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Cold Drinks -->
-      <div class="menu-category">
-        <h4 class="category-title">🧊 Cold Drinks</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥤 Fresh Lime Soda</h5>
-              <span class="item-price">₹30</span>
-            </div>
-            <p class="item-description">Refreshing lime with soda water</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('lime-soda', 'Fresh Lime Soda', 30, 'cafe', '🥤')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥭 Mango Shake</h5>
-              <span class="item-price">₹45</span>
-            </div>
-            <p class="item-description">Thick mango shake with ice cream</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('mango-shake', 'Mango Shake', 45, 'cafe', '🥭')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍓 Strawberry Smoothie</h5>
-              <span class="item-price">₹50</span>
-            </div>
-            <p class="item-description">Fresh strawberry smoothie with yogurt</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('strawberry-smoothie', 'Strawberry Smoothie', 50, 'cafe', '🍓')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Snacks -->
-      <div class="menu-category">
-        <h4 class="category-title">🍪 Snacks & Bites</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥪 Club Sandwich</h5>
-              <span class="item-price">₹60</span>
-            </div>
-            <p class="item-description">Multi-layer sandwich with veggies</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('club-sandwich', 'Club Sandwich', 60, 'cafe', '🥪')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🧁 Cupcakes</h5>
-              <span class="item-price">₹40</span>
-            </div>
-            <p class="item-description">Freshly baked vanilla cupcakes</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('cupcakes', 'Cupcakes', 40, 'cafe', '🧁')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍟 French Fries</h5>
-              <span class="item-price">₹35</span>
-            </div>
-            <p class="item-description">Crispy golden french fries</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('french-fries', 'French Fries', 35, 'cafe', '🍟')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Kitchen Menu -->
-    <div id="kitchenMenu" class="service-menu" style="display: none;">
-      <h3 style="text-align: center; color: #667eea; margin-bottom: 25px; font-size: 1.8em;">🍳 Kitchen Menu</h3>
-      
-      <!-- Main Courses -->
-      <div class="menu-category">
-        <h4 class="category-title">🍽️ Main Courses</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍛 Chicken Biryani</h5>
-              <span class="item-price">₹120</span>
-            </div>
-            <p class="item-description">Aromatic basmati rice with tender chicken</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('chicken-biryani', 'Chicken Biryani', 120, 'kitchen', '🍛')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍛 Veg Biryani</h5>
-              <span class="item-price">₹80</span>
-            </div>
-            <p class="item-description">Fragrant rice with mixed vegetables</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('veg-biryani', 'Veg Biryani', 80, 'kitchen', '🍛')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍛 Dal Makhani</h5>
-              <span class="item-price">₹70</span>
-            </div>
-            <p class="item-description">Creamy black lentils with butter</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('dal-makhani', 'Dal Makhani', 70, 'kitchen', '🍛')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Appetizers -->
-      <div class="menu-category">
-        <h4 class="category-title">🥗 Appetizers</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥟 Samosa (2 pcs)</h5>
-              <span class="item-price">₹20</span>
-            </div>
-            <p class="item-description">Crispy pastry with spiced potato filling</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('samosa', 'Samosa (2 pcs)', 20, 'kitchen', '🥟')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍢 Paneer Tikka</h5>
-              <span class="item-price">₹90</span>
-            </div>
-            <p class="item-description">Grilled cottage cheese with spices</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('paneer-tikka', 'Paneer Tikka', 90, 'kitchen', '🍢')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍲 Chaat Platter</h5>
-              <span class="item-price">₹60</span>
-            </div>
-            <p class="item-description">Mixed chaat with chutneys</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('chaat-platter', 'Chaat Platter', 60, 'kitchen', '🍲')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Breads & Rice -->
-      <div class="menu-category">
-        <h4 class="category-title">🍞 Breads & Rice</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🫓 Butter Naan</h5>
-              <span class="item-price">₹25</span>
-            </div>
-            <p class="item-description">Soft naan bread with butter</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('butter-naan', 'Butter Naan', 25, 'kitchen', '🫓')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍚 Jeera Rice</h5>
-              <span class="item-price">₹40</span>
-            </div>
-            <p class="item-description">Cumin flavored basmati rice</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('jeera-rice', 'Jeera Rice', 40, 'kitchen', '🍚')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🫓 Garlic Naan</h5>
-              <span class="item-price">₹30</span>
-            </div>
-            <p class="item-description">Naan bread with garlic and herbs</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('garlic-naan', 'Garlic Naan', 30, 'kitchen', '🫓')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Kitchen Beverages -->
-      <div class="menu-category">
-        <h4 class="category-title">🥛 Traditional Beverages</h4>
-        <div class="menu-items-grid">
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥛 Sweet Lassi</h5>
-              <span class="item-price">₹35</span>
-            </div>
-            <p class="item-description">Traditional yogurt drink with sugar</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('sweet-lassi', 'Sweet Lassi', 35, 'kitchen', '🥛')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🥛 Buttermilk</h5>
-              <span class="item-price">₹25</span>
-            </div>
-            <p class="item-description">Spiced buttermilk with mint</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('buttermilk', 'Buttermilk', 25, 'kitchen', '🥛')">Add to Cart</button>
-          </div>
-          
-          <div class="menu-item-card">
-            <div class="item-header">
-              <h5>🍋 Nimbu Paani</h5>
-              <span class="item-price">₹20</span>
-            </div>
-            <p class="item-description">Fresh lemon water with salt/sugar</p>
-            <button class="add-item-btn" onclick="addCafeKitchenItem('nimbu-paani', 'Nimbu Paani', 20, 'kitchen', '🍋')">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
   <!-- Thank You Section -->
   <div class="section" style="text-align: center; background: linear-gradient(135deg, #00b894, #00cec9);">
@@ -1469,16 +1237,19 @@
         status: 'New Order'
       };
       
+      console.log('Sending order data:', orderData);
+      
       // Send to Google Sheets
       fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
         body: JSON.stringify(orderData)
       })
-      .then(() => {
+      .then(response => {
+        console.log('Order sent to Google Sheets successfully');
+        
         // Save order to localStorage for customer history
         saveOrderToHistory(orderData);
         
@@ -1930,15 +1701,16 @@
         cartDetails: JSON.stringify(cart)
       };
       
+      console.log('Sending cart order data:', orderData);
+      
       // Show loading
       document.getElementById('checkoutBtn').innerHTML = '<span class="loading"></span> Processing...';
       
       // Send to Google Sheets (same as before)
       fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
         body: JSON.stringify(orderData)
       })
@@ -2088,56 +1860,7 @@
       }
     }
 
-    // Cafe & Kitchen Functions
-    function showService(serviceType) {
-      // Update button states
-      document.querySelectorAll('.service-btn').forEach(btn => {
-        btn.classList.remove('active-service');
-      });
-      
-      if (serviceType === 'cafe') {
-        document.getElementById('cafeBtn').classList.add('active-service');
-        document.getElementById('cafeMenu').style.display = 'block';
-        document.getElementById('kitchenMenu').style.display = 'none';
-      } else {
-        document.getElementById('kitchenBtn').classList.add('active-service');
-        document.getElementById('cafeMenu').style.display = 'none';
-        document.getElementById('kitchenMenu').style.display = 'block';
-      }
-    }
 
-    // Add cafe/kitchen items to cart
-    function addCafeKitchenItem(itemId, itemName, price, category, emoji) {
-      const existingItem = cart.find(item => item.type === itemId);
-      
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cart.push({
-          type: itemId,
-          name: itemName,
-          items: `${category.charAt(0).toUpperCase() + category.slice(1)} Item`,
-          price: price,
-          quantity: 1,
-          emoji: emoji,
-          category: category
-        });
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(cart));
-      updateCartCount();
-      
-      // Show success animation
-      const button = event.target;
-      const originalText = button.innerHTML;
-      button.innerHTML = '✅ Added!';
-      button.style.background = '#00b894';
-      
-      setTimeout(() => {
-        button.innerHTML = originalText;
-        button.style.background = 'linear-gradient(135deg, #00b894, #00cec9)';
-      }, 1000);
-    }
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9672894164a15963',t:'MTc1Mzg1NDE4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c1056253aa7ec',t:'MTc1Mzk1NDA4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
