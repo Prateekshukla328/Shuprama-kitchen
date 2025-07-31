@@ -1025,6 +1025,22 @@
     
     <div class="contact-box" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); border-radius: 20px; margin: 20px 15px; padding: 25px; color: white; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
       <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 2em; margin-bottom: 10px;">👑</div>
+        <strong style="font-size: 1.2em; color: #feca57;">Admin Access</strong>
+      </div>
+      <div style="background: rgba(254, 202, 87, 0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+        <strong>🔐 Admin Login:</strong><br>
+        <span style="opacity: 0.9;">User ID: PrateekShuprama890<br>Password: Pradhya677@</span>
+      </div>
+      <div style="text-align: center;">
+        <button onclick="adminQuickLogin()" style="background: linear-gradient(135deg, #feca57, #ff6b6b); color: white; border: none; padding: 12px 25px; border-radius: 20px; cursor: pointer; font-weight: 600; width: 100%;">
+          👑 Quick Admin Login
+        </button>
+      </div>
+    </div>
+    
+    <div class="contact-box" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1)); border-radius: 20px; margin: 20px 15px; padding: 25px; color: white; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
+      <div style="text-align: center; margin-bottom: 20px;">
         <div style="font-size: 2em; margin-bottom: 10px;">🍛</div>
         <strong style="font-size: 1.2em; color: #feca57;">Quick Contact</strong>
       </div>
@@ -2375,21 +2391,53 @@
     function checkAdminAccess() {
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       
-      if (currentUser.isAdmin) {
+      // Check if current user is already an admin
+      if (currentUser.isAdmin || currentUser.userId === ADMIN_CREDENTIALS.userId) {
         showAdminPanel();
-      } else {
-        const adminUserId = prompt("🔐 Admin Access Required\n\nEnter admin user ID:");
+        return;
+      }
+      
+      // Check if user is logged in but not admin
+      if (currentUser.name) {
+        const adminUserId = prompt("🔐 Admin Access Required\n\nYou are logged in as a regular user.\nEnter admin user ID to access admin panel:");
         if (!adminUserId) return;
         
         const adminPassword = prompt("🔑 Enter admin password:");
         if (!adminPassword) return;
         
+        // Check against main admin credentials
         if (adminUserId === ADMIN_CREDENTIALS.userId && adminPassword === ADMIN_CREDENTIALS.password) {
-          alert("✅ Admin access granted!");
+          // Update current user session to include admin privileges
+          currentUser.isAdmin = true;
+          currentUser.adminAccess = true;
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          
+          alert("✅ Admin access granted!\nYou now have admin privileges for this session.");
           showAdminPanel();
+          
+          // Show admin panel link
+          document.getElementById('adminPanelLink').style.display = 'block';
         } else {
-          alert("❌ Invalid admin credentials!\nAccess denied.");
+          // Check against registered admin users
+          const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+          const admin = users.find(u => u.userId === adminUserId && u.password === adminPassword && u.isAdmin);
+          
+          if (admin) {
+            currentUser.isAdmin = true;
+            currentUser.adminAccess = true;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            
+            alert("✅ Admin access granted!\nYou now have admin privileges for this session.");
+            showAdminPanel();
+            document.getElementById('adminPanelLink').style.display = 'block';
+          } else {
+            alert("❌ Invalid admin credentials!\nAccess denied.");
+          }
         }
+      } else {
+        // User not logged in
+        alert("🔐 Please login first!\n\nYou need to be logged in to access the admin panel.\nClick the login button to continue.");
+        showLoginModal();
       }
     }
 
@@ -2406,18 +2454,51 @@
       const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
       const orders = JSON.parse(localStorage.getItem('orderHistory') || '[]');
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const admins = users.filter(u => u.isAdmin);
+      const totalRevenue = orders.reduce((sum, order) => sum + (parseInt(order.totalAmount) || 0), 0);
       
       const statsHTML = `
-        <div style="line-height: 2;">
-          <p><strong>👥 Total Users:</strong> ${users.length}</p>
-          <p><strong>📦 Total Orders:</strong> ${orders.length}</p>
-          <p><strong>👤 Current User:</strong> ${currentUser.name || 'Not logged in'}</p>
-          <p><strong>💾 Data Size:</strong> ${Math.round(JSON.stringify(localStorage).length / 1024)} KB</p>
-          <p><strong>🕐 Last Updated:</strong> ${new Date().toLocaleString()}</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">👥</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: #feca57;">${users.length}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Total Users</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">📦</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: #feca57;">${orders.length}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Total Orders</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">👑</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: #feca57;">${admins.length}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Total Admins</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">💰</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: #feca57;">₹${totalRevenue}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Total Revenue</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">💾</div>
+            <div style="font-size: 1.5em; font-weight: bold; color: #feca57;">${Math.round(JSON.stringify(localStorage).length / 1024)}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Data Size (KB)</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2em; margin-bottom: 5px;">👤</div>
+            <div style="font-size: 1.2em; font-weight: bold; color: #feca57;">${currentUser.name || 'None'}</div>
+            <div style="font-size: 0.9em; opacity: 0.8;">Current User</div>
+          </div>
+        </div>
+        <div style="margin-top: 20px; text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+          <p style="margin: 0; font-size: 0.9em; opacity: 0.8;">🕐 Last Updated: ${new Date().toLocaleString()}</p>
         </div>
       `;
       
-      document.getElementById('systemStats').innerHTML = statsHTML;
+      const statsElement = document.getElementById('systemStats');
+      if (statsElement) {
+        statsElement.innerHTML = statsHTML;
+      }
     }
 
     function showAllUsersDetailed() {
@@ -2428,38 +2509,38 @@
         return;
       }
       
-      let userDetails = "👥 DETAILED USER DATABASE:\n\n";
-      users.forEach((user, index) => {
-        userDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        userDetails += `USER #${index + 1}\n`;
-        userDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        userDetails += `👤 Full Name: ${user.name}\n`;
-        userDetails += `📱 Phone: ${user.phone}\n`;
-        userDetails += `🔒 Password: ${user.password}\n`;
-        userDetails += `📧 Email: ${user.email}\n`;
-        userDetails += `📍 Address: ${user.address}\n`;
-        userDetails += `📅 Signup Date: ${new Date(user.signupDate).toLocaleString()}\n`;
-        userDetails += `🕐 Account Age: ${Math.floor((Date.now() - new Date(user.signupDate)) / (1000 * 60 * 60 * 24))} days\n\n`;
-      });
+      // Create modal content instead of new window
+      const modalHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+          <div style="background: linear-gradient(135deg, #667eea, #764ba2); width: 90%; max-width: 1000px; max-height: 90%; overflow-y: auto; border-radius: 20px; padding: 30px; color: white; position: relative;" onclick="event.stopPropagation()">
+            <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 15px; right: 25px; color: white; font-size: 30px; cursor: pointer; font-weight: bold;">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 30px; color: #feca57;">👥 User Database (${users.length} Users)</h2>
+            <div style="display: grid; gap: 20px;">
+              ${users.map((user, index) => `
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; border-left: 4px solid #feca57;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div><strong>👤 Name:</strong> ${user.name}</div>
+                    <div><strong>📱 Phone:</strong> ${user.phone}</div>
+                    <div><strong>🔒 Password:</strong> ${user.password}</div>
+                    <div><strong>📧 Email:</strong> ${user.email}</div>
+                    <div><strong>📍 Address:</strong> ${user.address}</div>
+                    <div><strong>📅 Joined:</strong> ${new Date(user.signupDate).toLocaleDateString()}</div>
+                    <div><strong>👑 Role:</strong> ${user.isAdmin ? 'Admin' : 'Customer'}</div>
+                    <div><strong>🕐 Days:</strong> ${Math.floor((Date.now() - new Date(user.signupDate)) / (1000 * 60 * 60 * 24))}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+              <p><strong>📊 Total Users:</strong> ${users.length} | <strong>💾 Data Size:</strong> ${Math.round(JSON.stringify(users).length / 1024)} KB</p>
+              <button onclick="exportUserData()" style="background: #00b894; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">📥 Export CSV</button>
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #ff6b6b; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">✖️ Close</button>
+            </div>
+          </div>
+        </div>
+      `;
       
-      userDetails += `📊 SUMMARY:\n`;
-      userDetails += `• Total Users: ${users.length}\n`;
-      userDetails += `• Database Size: ${Math.round(JSON.stringify(users).length / 1024)} KB\n`;
-      userDetails += `• Generated: ${new Date().toLocaleString()}\n\n`;
-      userDetails += `⚠️ This is demo data stored locally in browser.`;
-      
-      // Create a new window to display the data
-      const newWindow = window.open('', '_blank', 'width=800,height=600');
-      newWindow.document.write(`
-        <html>
-          <head><title>User Database - Shuprama Admin</title></head>
-          <body style="font-family: monospace; padding: 20px; background: #f0f0f0;">
-            <h2>🔐 Shuprama User Database</h2>
-            <pre style="background: white; padding: 20px; border-radius: 10px; overflow: auto;">${userDetails}</pre>
-            <button onclick="window.close()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">Close Window</button>
-          </body>
-        </html>
-      `);
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
     function exportUserData() {
@@ -2494,42 +2575,48 @@
         return;
       }
       
-      let orderDetails = "📦 ALL ORDERS DATABASE:\n\n";
-      orders.forEach((order, index) => {
-        orderDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        orderDetails += `ORDER #${index + 1}\n`;
-        orderDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        orderDetails += `🆔 Order ID: ${order.orderId}\n`;
-        orderDetails += `👤 Customer: ${order.customerName}\n`;
-        orderDetails += `📱 Phone: ${order.phone}\n`;
-        orderDetails += `📧 Email: ${order.email || 'Not provided'}\n`;
-        orderDetails += `📍 Address: ${order.address}\n`;
-        orderDetails += `🍽️ Meal Plan: ${order.mealPlan}\n`;
-        orderDetails += `💰 Amount: ₹${order.totalAmount || 'N/A'}\n`;
-        orderDetails += `💳 Payment: ${order.paymentMethod || 'Not specified'}\n`;
-        orderDetails += `📅 Order Date: ${order.timestamp}\n`;
-        orderDetails += `📝 Special Requests: ${order.specialRequests || 'None'}\n`;
-        orderDetails += `📊 Status: ${order.status}\n\n`;
-      });
+      // Create modal content with better organization
+      const modalHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+          <div style="background: linear-gradient(135deg, #667eea, #764ba2); width: 95%; max-width: 1200px; max-height: 90%; overflow-y: auto; border-radius: 20px; padding: 30px; color: white; position: relative;" onclick="event.stopPropagation()">
+            <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 15px; right: 25px; color: white; font-size: 30px; cursor: pointer; font-weight: bold;">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 30px; color: #feca57;">📦 Orders Database (${orders.length} Orders)</h2>
+            <div style="display: grid; gap: 20px;">
+              ${orders.map((order, index) => `
+                <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; border-left: 4px solid ${order.status === 'New Order' ? '#feca57' : '#00b894'};">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                    <h3 style="color: #feca57; margin: 0; font-size: 1.3em;">Order #${order.orderId}</h3>
+                    <span style="background: ${order.status === 'New Order' ? '#feca57' : '#00b894'}; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9em; font-weight: 600;">
+                      ${order.status}
+                    </span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+                    <div><strong>👤 Customer:</strong> ${order.customerName}</div>
+                    <div><strong>📱 Phone:</strong> ${order.phone}</div>
+                    <div><strong>📧 Email:</strong> ${order.email || 'Not provided'}</div>
+                    <div><strong>📅 Date:</strong> ${new Date(order.timestamp).toLocaleDateString()}</div>
+                    <div><strong>🍽️ Meal:</strong> ${order.mealPlan || order.items || 'N/A'}</div>
+                    <div><strong>💰 Amount:</strong> ₹${order.totalAmount || 'N/A'}</div>
+                    <div><strong>💳 Payment:</strong> ${order.paymentMethod || 'Not specified'}</div>
+                    <div><strong>⏰ Duration:</strong> ${order.duration || 'Not specified'}</div>
+                  </div>
+                  <div style="margin-top: 15px;">
+                    <div><strong>📍 Address:</strong> ${order.address}</div>
+                    ${order.specialRequests && order.specialRequests !== 'None' ? `<div style="margin-top: 10px;"><strong>📝 Special Requests:</strong> ${order.specialRequests}</div>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+              <p><strong>📊 Total Orders:</strong> ${orders.length} | <strong>💰 Total Revenue:</strong> ₹${orders.reduce((sum, order) => sum + (parseInt(order.totalAmount) || 0), 0)} | <strong>💾 Data Size:</strong> ${Math.round(JSON.stringify(orders).length / 1024)} KB</p>
+              <button onclick="exportOrderData()" style="background: #00b894; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">📥 Export CSV</button>
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #ff6b6b; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">✖️ Close</button>
+            </div>
+          </div>
+        </div>
+      `;
       
-      orderDetails += `📊 ORDER SUMMARY:\n`;
-      orderDetails += `• Total Orders: ${orders.length}\n`;
-      orderDetails += `• Database Size: ${Math.round(JSON.stringify(orders).length / 1024)} KB\n`;
-      orderDetails += `• Generated: ${new Date().toLocaleString()}\n\n`;
-      orderDetails += `⚠️ This is demo data stored locally in browser.`;
-      
-      // Create a new window to display the data
-      const newWindow = window.open('', '_blank', 'width=900,height=700');
-      newWindow.document.write(`
-        <html>
-          <head><title>Orders Database - Shuprama Admin</title></head>
-          <body style="font-family: monospace; padding: 20px; background: #f0f0f0;">
-            <h2>📦 Shuprama Orders Database</h2>
-            <pre style="background: white; padding: 20px; border-radius: 10px; overflow: auto; max-height: 500px;">${orderDetails}</pre>
-            <button onclick="window.close()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">Close Window</button>
-          </body>
-        </html>
-      `);
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
     function exportOrderData() {
@@ -2772,40 +2859,84 @@
         return;
       }
       
-      let adminDetails = "👑 ALL SYSTEM ADMINS:\n\n";
-      adminDetails += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+      // Create modal content for admin display
+      const modalHTML = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+          <div style="background: linear-gradient(135deg, #667eea, #764ba2); width: 90%; max-width: 1000px; max-height: 90%; overflow-y: auto; border-radius: 20px; padding: 30px; color: white; position: relative;" onclick="event.stopPropagation()">
+            <span onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 15px; right: 25px; color: white; font-size: 30px; cursor: pointer; font-weight: bold;">&times;</span>
+            <h2 style="text-align: center; margin-bottom: 30px; color: #feca57;">👑 Admin Database (${admins.length} Admins)</h2>
+            <div style="display: grid; gap: 20px;">
+              ${admins.map((admin, index) => `
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; border-left: 4px solid #ff6b6b;">
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div><strong>👤 Name:</strong> ${admin.name}</div>
+                    <div><strong>🆔 User ID:</strong> ${admin.userId}</div>
+                    <div><strong>📱 Phone:</strong> ${admin.phone}</div>
+                    <div><strong>🔒 Password:</strong> ${admin.password}</div>
+                    <div><strong>📧 Email:</strong> ${admin.email}</div>
+                    <div><strong>📅 Added:</strong> ${new Date(admin.signupDate).toLocaleDateString()}</div>
+                    <div><strong>🏷️ Role:</strong> ${admin.role || 'Admin'}</div>
+                    <div><strong>🕐 Days:</strong> ${Math.floor((Date.now() - new Date(admin.signupDate)) / (1000 * 60 * 60 * 24))}</div>
+                  </div>
+                  <div style="margin-top: 15px; text-align: right;">
+                    ${admin.userId !== ADMIN_CREDENTIALS.userId ? `
+                      <button onclick="removeSpecificAdmin('${admin.userId}')" style="background: #ff6b6b; color: white; padding: 8px 15px; border: none; border-radius: 15px; cursor: pointer; margin-left: 10px; font-weight: 600;">
+                        🗑️ Remove
+                      </button>
+                    ` : `
+                      <span style="background: #00b894; color: white; padding: 8px 15px; border-radius: 15px; font-size: 0.9em; font-weight: 600;">
+                        🔒 Main Admin
+                      </span>
+                    `}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+              <p><strong>👑 Total Admins:</strong> ${admins.length} | <strong>🔒 Main Admin:</strong> ${ADMIN_CREDENTIALS.userId}</p>
+              <button onclick="addNewAdmin()" style="background: #00b894; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">➕ Add Admin</button>
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #ff6b6b; color: white; padding: 12px 25px; border: none; border-radius: 20px; cursor: pointer; margin: 10px; font-weight: 600;">✖️ Close</button>
+            </div>
+          </div>
+        </div>
+      `;
       
-      admins.forEach((admin, index) => {
-        adminDetails += `ADMIN #${index + 1}\n`;
-        adminDetails += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        adminDetails += `👤 Name: ${admin.name}\n`;
-        adminDetails += `🆔 User ID: ${admin.userId}\n`;
-        adminDetails += `📱 Phone: ${admin.phone}\n`;
-        adminDetails += `🔒 Password: ${admin.password}\n`;
-        adminDetails += `📧 Email: ${admin.email}\n`;
-        adminDetails += `📅 Added: ${new Date(admin.signupDate).toLocaleString()}\n`;
-        adminDetails += `🏷️ Role: ${admin.role}\n`;
-        adminDetails += `🕐 Account Age: ${Math.floor((Date.now() - new Date(admin.signupDate)) / (1000 * 60 * 60 * 24))} days\n\n`;
-      });
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    // Helper function to remove specific admin
+    function removeSpecificAdmin(userId) {
+      if (confirm(`⚠️ Are you sure you want to remove admin with User ID: ${userId}?\n\nThis action cannot be undone!`)) {
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        const adminIndex = users.findIndex(u => u.userId === userId && u.isAdmin);
+        
+        if (adminIndex !== -1) {
+          const removedAdmin = users[adminIndex];
+          users.splice(adminIndex, 1);
+          localStorage.setItem('registeredUsers', JSON.stringify(users));
+          
+          alert(`✅ Admin removed successfully!\n\n👤 ${removedAdmin.name} (${removedAdmin.userId}) is no longer an admin.`);
+          
+          // Close current modal and refresh admin panel
+          document.querySelector('[style*="z-index: 4000"]').remove();
+          updateSystemStats();
+        }
+      }
+    }
+
+    // Admin Quick Login Function
+    function adminQuickLogin() {
+      // Auto-fill admin credentials
+      document.getElementById('loginPhone').value = '9149153015';
+      document.getElementById('loginPassword').value = 'Pradhya677@';
       
-      adminDetails += `📊 ADMIN SUMMARY:\n`;
-      adminDetails += `• Total Admins: ${admins.length}\n`;
-      adminDetails += `• Main Admin: ${ADMIN_CREDENTIALS.userId}\n`;
-      adminDetails += `• Generated: ${new Date().toLocaleString()}\n\n`;
-      adminDetails += `⚠️ Keep this information secure!`;
+      // Show login modal
+      showLoginModal();
       
-      // Create a new window to display the data
-      const newWindow = window.open('', '_blank', 'width=800,height=600');
-      newWindow.document.write(`
-        <html>
-          <head><title>Admin Database - Shuprama</title></head>
-          <body style="font-family: monospace; padding: 20px; background: #f0f0f0;">
-            <h2>👑 Shuprama Admin Database</h2>
-            <pre style="background: white; padding: 20px; border-radius: 10px; overflow: auto;">${adminDetails}</pre>
-            <button onclick="window.close()" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">Close Window</button>
-          </body>
-        </html>
-      `);
+      // Show success message
+      setTimeout(() => {
+        alert('👑 Admin credentials filled!\n\nClick "Login & Start Ordering" to access admin panel.\n\n🔐 User ID: PrateekShuprama890\n🔑 Password: Pradhya677@');
+      }, 500);
     }
 
     // Initialize cart and meals
@@ -2915,5 +3046,5 @@
 
 
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c44eed7f9919e',t:'MTc1Mzk1NjI0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967c664f5505a786',t:'MTc1Mzk1NzYwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
